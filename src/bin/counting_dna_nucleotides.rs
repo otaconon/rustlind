@@ -1,21 +1,18 @@
 use std::io::{Write};
 use std::error::Error;
 
-use rustlind::FileIO;
-
-fn count_nucleobases(buf: &[u8]) -> [usize; 256] {
-    let mut counts = [0usize; 256];
-    for &byte in buf {
-        counts[byte as usize] += 1
-    }
-    counts
-}
+use rustlind::{FileIO, Nucleobase, Strand};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut io = FileIO::from_args()?;
-    let buf = io.read()?;
-    let counts = count_nucleobases(&buf);
-    writeln!(io.writer, "{} {} {} {}", counts[b'A' as usize], counts[b'C' as usize], counts[b'G' as usize], counts[b'T' as usize])?;
+    let seq = io.read()?;
+    let strand = Strand::new(seq, None)?;
+    writeln!(io.writer, "{} {} {} {}", 
+        strand.nucleotide_infos[Nucleobase::A as usize].count,
+        strand.nucleotide_infos[Nucleobase::C as usize].count,
+        strand.nucleotide_infos[Nucleobase::G as usize].count,
+        strand.nucleotide_infos[Nucleobase::T as usize].count
+    )?;
     Ok(())
 }
 
@@ -24,12 +21,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_count_nucleobases() {
+    fn test_count_nucleobases() -> Result<(), Box<dyn Error>> {
         let input = "AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC";
-        let result = count_nucleobases(input.as_bytes());
-        assert_eq!(result[b'A' as usize], 20);
-        assert_eq!(result[b'C' as usize], 12);
-        assert_eq!(result[b'G' as usize], 17);
-        assert_eq!(result[b'T' as usize], 21);
+        let strand = Strand::new(input, None)?;
+        assert_eq!(strand.nucleotide_infos[Nucleobase::A as usize].count, 20);
+        assert_eq!(strand.nucleotide_infos[Nucleobase::C as usize].count, 12);
+        assert_eq!(strand.nucleotide_infos[Nucleobase::G as usize].count, 17);
+        assert_eq!(strand.nucleotide_infos[Nucleobase::T as usize].count, 21);
+        Ok(())
     }
 }

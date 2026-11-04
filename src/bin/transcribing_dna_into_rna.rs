@@ -1,24 +1,13 @@
 use std::io::{Write};
 use std::error::Error;
 
-use rustlind::FileIO;
-
-fn transcribe_dna_to_rna(dna: &[u8]) -> String {
-    let mut rna = String::new();
-    for &byte in dna {
-        match byte {
-            b'T' => rna.push('U'),
-            _ => rna.push(byte as char),
-        }
-    }
-    rna
-}
+use rustlind::{FileIO, Strand, StrandType};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut io = FileIO::from_args()?;
     let dna = io.read()?;
-    let rna = transcribe_dna_to_rna(&dna);
-    writeln!(io.writer, "{}", rna)?;
+    let rna = Strand::new(dna, Some(StrandType::DNA))?.to_rna()?;
+    writeln!(io.writer, "{:?}", rna.seq)?;
     Ok(())
 }
 
@@ -27,9 +16,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_transcribe_dna_to_rna() {
-        let input = "GATGGAACTTGACTACGTAAATT";
-        let result = transcribe_dna_to_rna(input.as_bytes());
-        assert_eq!(result, "GAUGGAACUUGACUACGUAAAUU")
+    fn test_transcribe_dna_to_rna() -> Result<(), Box<dyn Error>>{
+        let dna = "GATGGAACTTGACTACGTAAATT";
+        let rna = Strand::new(dna, Some(StrandType::DNA))?.to_rna()?;
+        assert_eq!(String::from_utf8(rna.seq).unwrap(), "GAUGGAACUUGACUACGUAAAUU");
+        Ok(())
     }
 }
