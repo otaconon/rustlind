@@ -16,10 +16,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_transcribe_dna_to_rna() -> Result<(), Box<dyn Error>>{
+    fn test_transcribe_dna_to_rna() {
         let dna = "GATGGAACTTGACTACGTAAATT";
         let rna = Strand::from_bytes(dna, StrandType::DNA).to_rna();
         assert_eq!(rna.to_string(), "GAUGGAACUUGACUACGUAAAUU");
-        Ok(())
     }
 }
