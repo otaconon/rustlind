@@ -1,17 +1,17 @@
 use std::io::{Write};
 use std::error::Error;
 
-use rustlind::{FileIO, Nucleobase, Strand};
+use rustlind::{FileIO, Nucleobase, Strand, StrandType};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut io = FileIO::from_args()?;
     let seq = io.read()?;
-    let strand = Strand::new(seq, None)?;
+    let strand = Strand::from_bytes(seq, StrandType::DNA);
     writeln!(io.writer, "{} {} {} {}", 
-        strand.nucleotide_infos[Nucleobase::A as usize].count,
-        strand.nucleotide_infos[Nucleobase::C as usize].count,
-        strand.nucleotide_infos[Nucleobase::G as usize].count,
-        strand.nucleotide_infos[Nucleobase::T as usize].count
+        strand.nucleotide_infos()[Nucleobase::A].positions.len(),
+        strand.nucleotide_infos()[Nucleobase::C].positions.len(),
+        strand.nucleotide_infos()[Nucleobase::G].positions.len(),
+        strand.nucleotide_infos()[Nucleobase::T].positions.len()
     )?;
     Ok(())
 }
@@ -21,13 +21,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_count_nucleobases() -> Result<(), Box<dyn Error>> {
+    fn test_count_nucleobases() {
         let input = "AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC";
-        let strand = Strand::new(input, None)?;
-        assert_eq!(strand.nucleotide_infos[Nucleobase::A as usize].count, 20);
-        assert_eq!(strand.nucleotide_infos[Nucleobase::C as usize].count, 12);
-        assert_eq!(strand.nucleotide_infos[Nucleobase::G as usize].count, 17);
-        assert_eq!(strand.nucleotide_infos[Nucleobase::T as usize].count, 21);
-        Ok(())
+        let strand = Strand::from_bytes(input, StrandType::DNA);
+        assert_eq!(strand.nucleotide_infos()[Nucleobase::A].positions.len(), 20);
+        assert_eq!(strand.nucleotide_infos()[Nucleobase::C].positions.len(), 12);
+        assert_eq!(strand.nucleotide_infos()[Nucleobase::G].positions.len(), 17);
+        assert_eq!(strand.nucleotide_infos()[Nucleobase::T].positions.len(), 21);
     }
 }
