@@ -3,7 +3,7 @@ use std::io::{self, BufRead};
 use crate::{Strand, StrandType};
 
 pub struct Record {
-    pub id: Vec<u8>,
+    pub id: String,
     pub strand: Strand,
 }
 
@@ -20,10 +20,9 @@ impl<R: BufRead> Reader<R> {
         }
     }
 
-    pub fn read_record(&self) -> io::Result<Option<Record>> {
+    pub fn read_record(&mut self) -> io::Result<Option<Record>> {
         let buf = self.reader.fill_buf()?;
         if buf.is_empty() {
-            eprintln!("WARNING: Empty record on line {}", self.line_num);
             return Ok(None);
         }
         if buf[0] != b'>' {
@@ -36,13 +35,12 @@ impl<R: BufRead> Reader<R> {
             ));
         }
 
-        let mut record = Record{id: Vec::new(),strand: Strand::from_bytes(buf, StrandType::DNA)};
-        self.reader.read_until(b'\n', &mut record.id)?;
+        let mut header = String::new();
+        self.reader.read_line(&mut header)?;
         self.line_num += 1;
-        record.id.remove(0); // Remove '>'
-        trim_newline(&mut record.id);
+        let id = header.trim_end().strip_prefix('>').unwrap_or_default().to_string();
 
-        let seq = Vec::new();
+        let mut seq = Vec::new();
         loop {
             let peek = self.reader.fill_buf()?;
             if peek.is_empty() || peek[0] == b'>' {
@@ -52,9 +50,8 @@ impl<R: BufRead> Reader<R> {
             self.line_num += 1;
             trim_newline(&mut seq);
         }
-        record.strand = Strand::from_bytes(seq, StrandType::DNA); // TODO: Handle RNA?
 
-        Ok(Some(record))
+        Ok(Some(Record{id, strand: Strand::from_bytes(seq, StrandType::DNA)})) // TODO: Handle RNA?
     }
 }
 

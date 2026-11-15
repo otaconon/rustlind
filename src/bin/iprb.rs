@@ -23,15 +23,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 mod tests {
     use super::*;
 
-    macro_rules! assert_delta {
-        ($x:expr, $y:expr, $d:expr) => {
-            if !($x - $y < $d || $y - $x < $d) { panic!(); }
-        }
-    }
-
     #[test]
     fn test_mendels_first_law() {
         let (k, m, n) = (2, 2, 2);
-        assert_delta!(dominant_allele_prob(k, m, n), 0.78333, 0.0001);
+        rustlind::assert_delta!(dominant_allele_prob(k, m, n), 0.78333, 0.0001);
     }
 }

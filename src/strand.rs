@@ -1,11 +1,10 @@
 use crate::StrandType;
-use crate::{Nucleobase, NucleobaseMap, NucleotideInfo};
+use crate::{Nucleobase, NucleobaseMap};
 use std::fmt::{self, Write};
 
 pub struct Strand {
     seq: Vec<Nucleobase>,
     ty: StrandType,
-    nucleotide_infos: NucleobaseMap<NucleotideInfo>,
 }
 
 impl Strand {
@@ -14,9 +13,6 @@ impl Strand {
     }
     pub fn ty(&self) -> StrandType {
         self.ty
-    }
-    pub fn nucleotide_infos(&self) -> &NucleobaseMap<NucleotideInfo> {
-        &self.nucleotide_infos
     }
 
     /// Creates strand from bytes.
@@ -34,20 +30,9 @@ impl Strand {
     }
 
     pub fn from_sequence(seq: Vec<Nucleobase>, ty: StrandType) -> Self {
-        let mut nucleotide_infos = NucleobaseMap(Nucleobase::BASES.map(|base| NucleotideInfo {
-            base,
-            positions: Vec::new(),
-        }));
-
-        for (idx, &base) in seq.iter().enumerate() {
-            let info = &mut nucleotide_infos[base];
-            info.positions.push(idx);
-        }
-
         Self {
             seq,
             ty,
-            nucleotide_infos,
         }
     }
 
@@ -63,6 +48,19 @@ impl Strand {
     pub fn to_complement(&self) -> Strand {
         let seq: Vec<Nucleobase> = self.seq.iter().map(|&b| b.to_complement(self.ty)).collect();
         Strand::from_sequence(seq, self.ty)
+    }
+
+    pub fn count(&self) -> NucleobaseMap<u32> {
+        let mut count = NucleobaseMap([0; Nucleobase::COUNT]);
+        for &base in &self.seq {
+            count[base] += 1;
+        }
+        count
+    }
+
+    pub fn gc_content(&self) -> f64 {
+        let c = self.count();
+        (c[Nucleobase::G] + c[Nucleobase::C]) as f64 / self.seq.len() as f64
     }
 }
 

@@ -76,9 +76,3 @@ impl<T> IndexMut<Nucleobase> for NucleobaseMap<T> {
         &mut self.0[base as usize]
     }
 }
-
-#[derive(Clone)]
-pub struct NucleotideInfo {
-    pub base: Nucleobase,
-    pub positions: Vec<usize>,
-}

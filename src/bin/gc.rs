@@ -1,24 +1,27 @@
-use rustlind::{Nucleobase, fasta};
+use rustlind::{fasta};
 
+use std::{error::Error, io::BufRead};
 use std::io::{Write};
-use std::error::Error;
 
-use rustlind::{FileIO, Scanner};
+use rustlind::{FileIO};
+
+fn highest_gc<R: BufRead>(reader: R) -> Result<(String, f64), Box<dyn Error>> {
+    let mut reader = fasta::Reader::new(reader);
+    let mut best: Option<(String, f64)> = None;
+    while let Some(rec) = reader.read_record()? {
+        let gc = rec.strand.gc_content();
+        if best.as_ref().map_or(true, |(_, b)| gc > *b) {
+            best = Some((rec.id, gc));
+        }
+    }
+    best.ok_or_else(|| "no records".into())
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut io = FileIO::from_args()?;
-    let reader = fasta::Reader::new(io.reader);
-    let best_record = reader.read_record()?.ok_or("ERROR: No records")?;
-    while let Some(record) = reader.read_record()? {
-        if best_record.strand.nucleotide_infos()[Nucleobase::G] + 
-            best_record.strand.nucleotide_infos()[Nucleobase::C] < 
-            record.strand.nucleotide_infos()[Nucleobase::G] + 
-            record.strand.nucleotide_infos()[Nucleobase::C] {
-                best_record = record;
-            }
-    }
-    writeln!(io.writer, "{}", best_record.id)?;
-    writeln!(io.writer, "{:.5}", best_record.strand)?;
+    let (id, gc) = highest_gc(io.reader)?;
+    writeln!(io.writer, "{}", id)?;
+    writeln!(io.writer, "{:.5}", gc*100.0)?;
     Ok(())
 }
 
@@ -26,14 +29,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 mod tests {
     use super::*;
 
-    macro_rules! assert_delta {
-        ($x:expr, $y:expr, $d:expr) => {
-            if !($x - $y < $d || $y - $x < $d) { panic!(); }
-        }
-    }
-
     #[test]
-    fn test_mendels_first_law() {
+    fn test_highest_gc() {
         let input = ">Rosalind_6404
 CCTGCGGAAGATCGGCACTAGAATAGCCAGAACCGTTTCTCTGAGGCTTCCGGCCTTCCC
 TCCCACTAATAATTCTGAGG
@@ -43,6 +40,8 @@ ATATCCATTTGTCAGCAGACACGC
 >Rosalind_0808
 CCACCCTCGTGGTATGGCTAGGCATTCAGGAACCGGAGAACGCTTCAGACCAGCCCGGAC
 TGGGAACCTGCGGGCAGTAGGTGGAAT";
-        assert_delta!(dominant_allele_prob(k, m, n), 0.78333, 0.0001);
+        let (id, gc) = highest_gc(input.as_bytes()).unwrap();
+        assert_eq!(id, "Rosalind_0808");
+        rustlind::assert_delta!(gc*100.0, 60.919540, 1e-3);
     }
 }
