@@ -3,6 +3,7 @@ mod strand;
 mod nucleotide;
 mod strand_type;
 mod scanner;
+pub mod fasta;
 
 pub use file_io::FileIO;
 pub use strand::{Strand};
