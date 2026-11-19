@@ -4,12 +4,14 @@ mod nucleotide;
 mod scanner;
 mod strand;
 mod strand_type;
+mod codon;
 
 pub use file_io::FileIO;
 pub use nucleotide::{Nucleobase, NucleobaseMap};
 pub use scanner::Scanner;
 pub use strand::Strand;
 pub use strand_type::StrandType;
+pub use codon::{Codon, CodonMap};
 
 #[macro_export]
 macro_rules! assert_delta {

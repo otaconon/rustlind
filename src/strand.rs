@@ -2,6 +2,7 @@ use crate::StrandType;
 use crate::{Nucleobase, NucleobaseMap};
 use std::fmt::{self, Write};
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Strand {
     seq: Vec<Nucleobase>,
     ty: StrandType,

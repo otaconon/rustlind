@@ -16,7 +16,6 @@ fn highest_gc<R: BufRead>(reader: R) -> Result<(String, f64), Box<dyn Error>> {
     }
     best.ok_or_else(|| "no records".into())
 }
-
 fn main() -> Result<(), Box<dyn Error>> {
     let mut io = FileIO::from_args()?;
     let (id, gc) = highest_gc(io.reader)?;
