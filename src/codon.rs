@@ -11,7 +11,7 @@ impl CodonStrand {
 }
 
 macro_rules! codons {
-    ($($name:ident = $idx:expr => [$($triplet:literal),+]),+ $(,)?) => {
+    ($($name:ident = $idx:expr => $letter:literal, [$($triplet:literal),+]),+ $(,)?) => {
         #[derive(Debug, Clone, PartialEq, Eq)]
         pub enum Codon {
             $($name(CodonStrand)),+
@@ -27,6 +27,18 @@ macro_rules! codons {
                 match strand.to_string().as_str() {
                     $($($triplet)|+ => Some(Codon::$name(CodonStrand(strand))),)+
                     _ => None,
+                }
+            }
+
+            pub fn to_str(&self) -> &'static str {
+                match self {
+                    $(Codon::$name(_) => stringify!($name)),+
+                }
+            }
+
+            pub fn letter(&self) -> char {
+                match self {
+                    $(Codon::$name(_) => $letter),+
                 }
             }
 
@@ -46,26 +58,27 @@ macro_rules! codons {
 }
 
 codons! {
-    Ala = 0  => ["GCU", "GCC", "GCA", "GCG"],
-    Arg = 1  => ["CGU", "CGC", "CGA", "CGG", "AGA", "AGG"],
-    Asn = 2  => ["AAU", "AAC"],
-    Asp = 3  => ["GAU", "GAC"],
-    Cys = 4  => ["UGU", "UGC"],
-    Gln = 5  => ["CAA", "CAG"],
-    Glu = 6  => ["GAA", "GAG"],
-    Gly = 7  => ["GGU", "GGC", "GGA", "GGG"],
-    His = 8  => ["CAU", "CAC"],
-    Ile = 9  => ["AUU", "AUC", "AUA"],
-    Leu = 10 => ["UUA", "UUG", "CUU", "CUC", "CUA", "CUG"],
-    Lys = 11 => ["AAA", "AAG"],
-    Met = 12 => ["AUG"],
-    Phe = 13 => ["UUU", "UUC"],
-    Pro = 14 => ["CCU", "CCC", "CCA", "CCG"],
-    Ser = 15 => ["UCU", "UCC", "UCA", "UCG", "AGU", "AGC"],
-    Thr = 16 => ["ACU", "ACC", "ACA", "ACG"],
-    Trp = 17 => ["UGG"],
-    Tyr = 18 => ["UAU", "UAC"],
-    Val = 19 => ["GUU", "GUC", "GUA", "GUG"],
+    Ala = 0  => 'A', ["GCU", "GCC", "GCA", "GCG"],
+    Arg = 1  => 'R', ["CGU", "CGC", "CGA", "CGG", "AGA", "AGG"],
+    Asn = 2  => 'N', ["AAU", "AAC"],
+    Asp = 3  => 'D', ["GAU", "GAC"],
+    Cys = 4  => 'C', ["UGU", "UGC"],
+    Gln = 5  => 'Q', ["CAA", "CAG"],
+    Glu = 6  => 'E', ["GAA", "GAG"],
+    Gly = 7  => 'G', ["GGU", "GGC", "GGA", "GGG"],
+    His = 8  => 'H', ["CAU", "CAC"],
+    Ile = 9  => 'I', ["AUU", "AUC", "AUA"],
+    Leu = 10 => 'L', ["UUA", "UUG", "CUU", "CUC", "CUA", "CUG"],
+    Lys = 11 => 'K', ["AAA", "AAG"],
+    Met = 12 => 'M', ["AUG"],
+    Phe = 13 => 'F', ["UUU", "UUC"],
+    Pro = 14 => 'P', ["CCU", "CCC", "CCA", "CCG"],
+    Ser = 15 => 'S', ["UCU", "UCC", "UCA", "UCG", "AGU", "AGC"],
+    Thr = 16 => 'T', ["ACU", "ACC", "ACA", "ACG"],
+    Trp = 17 => 'W', ["UGG"],
+    Tyr = 18 => 'Y', ["UAU", "UAC"],
+    Val = 19 => 'V', ["GUU", "GUC", "GUA", "GUG"],
+    Stop = 20 => '*', ["UAA", "UAG", "UGA"],
 }
 
 #[derive(Debug, Clone, Default)]
@@ -102,8 +115,15 @@ mod tests {
     }
 
     #[test]
+    fn letters() {
+        assert_eq!(Codon::from_strand(rna("AUG")).unwrap().letter(), 'M');
+        assert_eq!(Codon::from_strand(rna("AGC")).unwrap().letter(), 'S');
+        assert_eq!(Codon::from_strand(rna("UGA")).unwrap().letter(), '*');
+        assert_eq!(Codon::from_strand(rna("UGG")).unwrap().to_str(), "Trp");
+    }
+
+    #[test]
     fn invalid_codons() {
-        assert!(Codon::from_strand(rna("UAA")).is_none());
         assert!(Codon::from_strand(rna("AU")).is_none());
         assert!(Codon::from_strand(Strand::from_bytes("ATG", StrandType::DNA)).is_none());
     }
