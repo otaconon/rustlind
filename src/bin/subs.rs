@@ -36,7 +36,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_mendels_first_law() {
+    fn test_find_motif() {
       let dna = Strand::from_bytes("GATATATGCATATACTT", StrandType::DNA);
       let motif = Strand::from_bytes("ATAT", StrandType::DNA);
       assert_eq!(find_motifs(&dna, &motif), vec![2, 4, 10]);
