@@ -5,6 +5,8 @@ mod scanner;
 mod strand;
 mod strand_type;
 mod codon;
+mod protein;
+mod amino_acid;
 
 pub use file_io::FileIO;
 pub use nucleotide::{Nucleobase, NucleobaseMap};
@@ -12,6 +14,8 @@ pub use scanner::Scanner;
 pub use strand::Strand;
 pub use strand_type::StrandType;
 pub use codon::{Codon, CodonMap};
+pub use amino_acid::AminoAcid;
+pub use protein::Protein;
 
 #[macro_export]
 macro_rules! assert_delta {

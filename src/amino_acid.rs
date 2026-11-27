@@ -1,0 +1,131 @@
+#[repr(usize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
+pub enum AminoAcid {
+    Ala = 0,
+    Arg = 1,
+    Asn = 2,
+    Asp = 3,
+    Cys = 4,
+    Gln = 5,
+    Glu = 6,
+    Gly = 7,
+    His = 8,
+    Ile = 9,
+    Leu = 10,
+    Lys = 11,
+    Met = 12,
+    Phe = 13,
+    Pro = 14,
+    Ser = 15,
+    Thr = 16,
+    Trp = 17,
+    Tyr = 18,
+    Val = 19,
+    Stop = 20,
+}
+
+impl AminoAcid {
+    pub const COUNT: usize = 21;
+    pub const ALL: [Self; Self::COUNT] = [
+        Self::Ala,
+        Self::Arg,
+        Self::Asn,
+        Self::Asp,
+        Self::Cys,
+        Self::Gln,
+        Self::Glu,
+        Self::Gly,
+        Self::His,
+        Self::Ile,
+        Self::Leu,
+        Self::Lys,
+        Self::Met,
+        Self::Phe,
+        Self::Pro,
+        Self::Ser,
+        Self::Thr,
+        Self::Trp,
+        Self::Tyr,
+        Self::Val,
+        Self::Stop,
+    ];
+
+    pub fn from_byte(b: u8) -> Option<Self> {
+        match b {
+            b'A' => Some(Self::Ala),
+            b'R' => Some(Self::Arg),
+            b'N' => Some(Self::Asn),
+            b'D' => Some(Self::Asp),
+            b'C' => Some(Self::Cys),
+            b'Q' => Some(Self::Gln),
+            b'E' => Some(Self::Glu),
+            b'G' => Some(Self::Gly),
+            b'H' => Some(Self::His),
+            b'I' => Some(Self::Ile),
+            b'L' => Some(Self::Leu),
+            b'K' => Some(Self::Lys),
+            b'M' => Some(Self::Met),
+            b'F' => Some(Self::Phe),
+            b'P' => Some(Self::Pro),
+            b'S' => Some(Self::Ser),
+            b'T' => Some(Self::Thr),
+            b'W' => Some(Self::Trp),
+            b'Y' => Some(Self::Tyr),
+            b'V' => Some(Self::Val),
+            b'*' => Some(Self::Stop),
+            _ => None,
+        }
+    }
+
+    pub fn to_char(&self) -> char {
+        match self {
+            Self::Ala => 'A',
+            Self::Arg => 'R',
+            Self::Asn => 'N',
+            Self::Asp => 'D',
+            Self::Cys => 'C',
+            Self::Gln => 'Q',
+            Self::Glu => 'E',
+            Self::Gly => 'G',
+            Self::His => 'H',
+            Self::Ile => 'I',
+            Self::Leu => 'L',
+            Self::Lys => 'K',
+            Self::Met => 'M',
+            Self::Phe => 'F',
+            Self::Pro => 'P',
+            Self::Ser => 'S',
+            Self::Thr => 'T',
+            Self::Trp => 'W',
+            Self::Tyr => 'Y',
+            Self::Val => 'V',
+            Self::Stop => '*',
+        }
+    }
+
+    pub fn to_str(&self) -> &'static str {
+        match self {
+            Self::Ala => "Ala",
+            Self::Arg => "Arg",
+            Self::Asn => "Asn",
+            Self::Asp => "Asp",
+            Self::Cys => "Cys",
+            Self::Gln => "Gln",
+            Self::Glu => "Glu",
+            Self::Gly => "Gly",
+            Self::His => "His",
+            Self::Ile => "Ile",
+            Self::Leu => "Leu",
+            Self::Lys => "Lys",
+            Self::Met => "Met",
+            Self::Phe => "Phe",
+            Self::Pro => "Pro",
+            Self::Ser => "Ser",
+            Self::Thr => "Thr",
+            Self::Trp => "Trp",
+            Self::Tyr => "Tyr",
+            Self::Val => "Val",
+            Self::Stop => "Stop",
+        }
+    }
+}
